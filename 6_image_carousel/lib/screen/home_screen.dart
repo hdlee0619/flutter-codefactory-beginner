@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  final List<String> images = [
+    'assets/images/image0.png',
+    'assets/images/image1.png',
+    'assets/images/image2.png',
+  ];
 
-class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      body: PageView(
+        children: images.map((image) => Image.asset(image)).toList(),
+      ),
+    );
   }
 }
