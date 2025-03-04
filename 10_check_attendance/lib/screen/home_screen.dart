@@ -11,34 +11,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool isCheckIn = false;
-  bool canCheckIn = false;
-
+  late final GoogleMapController controller;
   final double companyDistance = 100;
-
   final CameraPosition initialPosition = CameraPosition(
     target: LatLng(37.5214, 126.924652),
     zoom: 15,
   );
 
-  checkPermission() async {
-    final isLocationEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!isLocationEnabled) {
-      throw Exception('위치 기능을 활성화 해주세요.');
-    }
-
-    LocationPermission checkedPermission = await Geolocator.checkPermission();
-
-    if (checkedPermission == LocationPermission.denied) {
-      checkedPermission = await Geolocator.requestPermission();
-    }
-
-    if (checkedPermission != LocationPermission.always &&
-        checkedPermission != LocationPermission.whileInUse) {
-      throw Exception('위치 권한이 없습니다.');
-    }
-  }
+  bool isCheckIn = false;
+  bool canCheckIn = false;
 
   @override
   void initState() {
@@ -88,59 +69,21 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Expanded(
                 flex: 3,
-                child: GoogleMap(
+                child: _GoogleMap(
+                  initialPosition: initialPosition,
                   onMapCreated: (GoogleMapController controller) {
                     this.controller = controller;
                   },
-                  initialCameraPosition: initialPosition,
-                  mapType: MapType.normal,
-                  myLocationButtonEnabled: false,
-                  myLocationEnabled: true,
-                  zoomControlsEnabled: false,
-                  markers: {
-                    Marker(
-                      markerId: MarkerId('123'),
-                      position: LatLng(37.5214, 126.9246),
-                    ),
-                  },
-                  circles: {
-                    Circle(
-                      circleId: CircleId('inDistance'),
-                      center: LatLng(37.5214, 126.9246),
-                      radius: companyDistance,
-                      fillColor:
-                          canCheckIn
-                              ? Colors.blue.withAlpha(100)
-                              : Colors.red.withAlpha(100),
-                      strokeColor: canCheckIn ? Colors.blue : Colors.red,
-                      strokeWidth: 1,
-                    ),
-                  },
+                  canCheckIn: canCheckIn,
+                  companyDistance: companyDistance,
                 ),
               ),
               Expanded(
                 flex: 1,
-                child: Container(
-                  color: Colors.white,
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        isCheckIn ? Icons.check : Icons.timelapse_outlined,
-                        color: isCheckIn ? Colors.green : Colors.blue,
-                      ),
-                      SizedBox(height: 16.0),
-                      if (!isCheckIn && canCheckIn)
-                        CupertinoButton(
-                          onPressed: handleCheckIn,
-                          child: Text(
-                            '출근하기',
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                        ),
-                    ],
-                  ),
+                child: _CheckInContainer(
+                  isCheckIn: isCheckIn,
+                  canCheckIn: canCheckIn,
+                  handleCheckIn: handleCheckIn,
                 ),
               ),
             ],
@@ -150,7 +93,24 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  late final GoogleMapController controller;
+  checkPermission() async {
+    final isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!isLocationEnabled) {
+      throw Exception('위치 기능을 활성화 해주세요.');
+    }
+
+    LocationPermission checkedPermission = await Geolocator.checkPermission();
+
+    if (checkedPermission == LocationPermission.denied) {
+      checkedPermission = await Geolocator.requestPermission();
+    }
+
+    if (checkedPermission != LocationPermission.always &&
+        checkedPermission != LocationPermission.whileInUse) {
+      throw Exception('위치 권한이 없습니다.');
+    }
+  }
 
   handleMyLocation() async {
     final location = await Geolocator.getCurrentPosition();
@@ -190,5 +150,84 @@ class _HomeScreenState extends State<HomeScreen> {
         isCheckIn = true;
       });
     }
+  }
+}
+
+class _GoogleMap extends StatelessWidget {
+  final CameraPosition initialPosition;
+  final MapCreatedCallback onMapCreated;
+  final bool canCheckIn;
+  final double companyDistance;
+
+  const _GoogleMap({
+    required this.initialPosition,
+    required this.onMapCreated,
+    this.canCheckIn = false,
+    this.companyDistance = 100,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GoogleMap(
+      onMapCreated: onMapCreated,
+      initialCameraPosition: initialPosition,
+      mapType: MapType.normal,
+      myLocationButtonEnabled: false,
+      myLocationEnabled: true,
+      zoomControlsEnabled: false,
+      markers: {
+        Marker(markerId: MarkerId('123'), position: LatLng(37.5214, 126.9246)),
+      },
+      circles: {
+        Circle(
+          circleId: CircleId('inDistance'),
+          center: LatLng(37.5214, 126.9246),
+          radius: companyDistance,
+          fillColor:
+              canCheckIn
+                  ? Colors.blue.withAlpha(100)
+                  : Colors.red.withAlpha(100),
+          strokeColor: canCheckIn ? Colors.blue : Colors.red,
+          strokeWidth: 1,
+        ),
+      },
+    );
+  }
+}
+
+class _CheckInContainer extends StatelessWidget {
+  final bool isCheckIn;
+  final bool canCheckIn;
+  final VoidCallback handleCheckIn;
+
+  const _CheckInContainer({
+    required this.isCheckIn,
+    required this.canCheckIn,
+    required this.handleCheckIn,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isCheckIn ? Icons.check : Icons.timelapse_outlined,
+            color: isCheckIn ? Colors.green : Colors.blue,
+          ),
+          SizedBox(height: 16.0),
+          if (!isCheckIn && canCheckIn)
+            CupertinoButton(
+              onPressed: handleCheckIn,
+              child: Text('출근하기', style: TextStyle(color: Colors.blue)),
+            ),
+        ],
+      ),
+    );
   }
 }
