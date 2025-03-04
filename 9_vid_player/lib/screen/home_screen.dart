@@ -115,7 +115,18 @@ class _VideoPlayerState extends State<_VideoPlayer> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      final currentPosition =
+                          videoPlayerController.value.position;
+
+                      Duration position = Duration();
+
+                      if (currentPosition.inSeconds > 3) {
+                        position = currentPosition - Duration(seconds: 3);
+                      }
+
+                      videoPlayerController.seekTo(position);
+                    },
                     icon: Icon(Icons.rotate_left, color: Colors.white),
                   ),
                   IconButton(
@@ -136,7 +147,20 @@ class _VideoPlayerState extends State<_VideoPlayer> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      final maxPosition = videoPlayerController.value.duration;
+                      final currentPosition =
+                          videoPlayerController.value.position;
+
+                      Duration position = maxPosition;
+
+                      if ((maxPosition - Duration(seconds: 3)).inSeconds >
+                          currentPosition.inSeconds) {
+                        position = currentPosition + Duration(seconds: 3);
+                      }
+
+                      videoPlayerController.seekTo(position);
+                    },
                     icon: Icon(Icons.rotate_right, color: Colors.white),
                   ),
                 ],
