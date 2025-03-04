@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '/screen/cam_screen.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -70,7 +72,11 @@ class _JoinButton extends StatelessWidget {
     return Expanded(
       child: Center(
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => CamScreen()));
+          },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
           child: Text('입장하기', style: TextStyle(color: Colors.white)),
         ),
