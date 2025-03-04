@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:random_number/const/color.dart';
+
+import '/components/number_to_image.dart';
+import '/const/color.dart';
+import '/screen/setting_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Header(),
+              _Header(onPressed: navigateSetting),
               _Body(numbers: numbers),
               _Footer(onPressed: createNumbers),
             ],
@@ -48,10 +51,22 @@ class _HomeScreenState extends State<HomeScreen> {
       numbers = newNumbers.toList();
     });
   }
+
+  navigateSetting() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return SettingScreen();
+        },
+      ),
+    );
+  }
 }
 
 class _Header extends StatelessWidget {
-  const _Header({super.key});
+  final VoidCallback onPressed;
+
+  const _Header({required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +82,7 @@ class _Header extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: onPressed,
           icon: Icon(Icons.settings),
           color: redColor,
         ),
@@ -88,24 +103,7 @@ class _Body extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 8.0,
         children:
-            numbers
-                .map(
-                  (numList) => Row(
-                    children:
-                        numList
-                            .toString()
-                            .split('')
-                            .map(
-                              (number) => Image.asset(
-                                'assets/images/$number.png',
-                                width: 50.0,
-                                height: 70.0,
-                              ),
-                            )
-                            .toList(),
-                  ),
-                )
-                .toList(),
+            numbers.map((numList) => NumberToImage(number: numList)).toList(),
       ),
     );
   }
