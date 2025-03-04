@@ -94,6 +94,10 @@ class _VideoPlayerState extends State<_VideoPlayer> {
   initializeController() async {
     videoPlayerController = VideoPlayerController.file(File(widget.video.path));
 
+    videoPlayerController.addListener(() {
+      setState(() {});
+    });
+
     await videoPlayerController.initialize();
   }
 
@@ -142,7 +146,12 @@ class _VideoPlayerState extends State<_VideoPlayer> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Slider(value: 0, onChanged: (double value) {}),
+              child: Slider(
+                value:
+                    videoPlayerController.value.position.inSeconds.toDouble(),
+                max: videoPlayerController.value.duration.inSeconds.toDouble(),
+                onChanged: (double value) {},
+              ),
             ),
             Positioned(
               right: 0,
@@ -155,6 +164,13 @@ class _VideoPlayerState extends State<_VideoPlayer> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    videoPlayerController.dispose();
+
+    super.dispose();
   }
 }
 
