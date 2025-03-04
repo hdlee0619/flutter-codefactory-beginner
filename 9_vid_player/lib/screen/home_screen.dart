@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,20 +13,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showVideoPlayer = false;
+  XFile? video;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body:
-          showVideoPlayer
-              ? _VideoPlayer()
+          video != null
+              ? _VideoPlayer(video: video!)
               : _VideoSelector(onTap: handleLogoTap),
     );
   }
 
-  handleLogoTap() {
+  handleLogoTap() async {
+    final video = await ImagePicker().pickVideo(source: ImageSource.gallery);
+
     setState(() {
-      showVideoPlayer = true;
+      this.video = video;
     });
   }
 }
@@ -62,12 +70,77 @@ class _Title extends StatelessWidget {
   }
 }
 
-class _VideoPlayer extends StatelessWidget {
-  const _VideoPlayer({super.key});
+class _VideoPlayer extends StatefulWidget {
+  final XFile video;
+
+  const _VideoPlayer({required this.video, super.key});
+
+  @override
+  State<_VideoPlayer> createState() => _VideoPlayerState();
+}
+
+class _VideoPlayerState extends State<_VideoPlayer> {
+  // late는 지금 당장 여기서 초기화하진 않을 건데, VideoPlayer를 사용할 때에는 초기화 할 것이다. 라는 의미
+  late final VideoPlayerController videoPlayerController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    initializeController();
+  }
+
+  initializeController() async {
+    videoPlayerController = VideoPlayerController.file(File(widget.video.path));
+
+    await videoPlayerController.initialize();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: Center(child: Text('TEST')));
+    return Center(
+      child: AspectRatio(
+        aspectRatio: videoPlayerController.value.aspectRatio,
+        child: Stack(
+          children: [
+            VideoPlayer(videoPlayerController),
+            Align(
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.rotate_left, color: Colors.white),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.play_arrow, color: Colors.white),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.rotate_right, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Slider(value: 0, onChanged: (double value) {}),
+            ),
+            Positioned(
+              right: 0,
+              child: IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.photo_camera_back, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
