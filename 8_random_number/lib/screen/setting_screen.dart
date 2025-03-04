@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '/components/number_to_image.dart';
@@ -20,10 +21,20 @@ class _SettingScreenState extends State<SettingScreen> {
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [_Number(maxNumber: maxNumber), _Slider(), _SaveButton()],
+          children: [
+            _Number(maxNumber: maxNumber),
+            _Slider(maxNumber: maxNumber, onChanged: handleSlider),
+            _SaveButton(),
+          ],
         ),
       ),
     );
+  }
+
+  handleSlider(double value) {
+    setState(() {
+      maxNumber = value;
+    });
   }
 }
 
@@ -39,11 +50,20 @@ class _Number extends StatelessWidget {
 }
 
 class _Slider extends StatelessWidget {
-  const _Slider({super.key});
+  final double maxNumber;
+  final ValueChanged<double> onChanged;
+
+  const _Slider({required this.maxNumber, required this.onChanged, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return CupertinoSlider(
+      value: maxNumber,
+      max: 100000,
+      min: 1000,
+      onChanged: onChanged,
+      activeColor: blueColor,
+    );
   }
 }
 
