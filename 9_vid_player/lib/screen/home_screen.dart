@@ -82,6 +82,7 @@ class _VideoPlayer extends StatefulWidget {
 class _VideoPlayerState extends State<_VideoPlayer> {
   // late는 지금 당장 여기서 초기화하진 않을 건데, VideoPlayer를 사용할 때에는 초기화 할 것이다. 라는 의미
   late final VideoPlayerController videoPlayerController;
+  bool isPlaying = false;
 
   @override
   void initState() {
@@ -114,8 +115,21 @@ class _VideoPlayerState extends State<_VideoPlayer> {
                     icon: Icon(Icons.rotate_left, color: Colors.white),
                   ),
                   IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.play_arrow, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        if (videoPlayerController.value.isPlaying) {
+                          videoPlayerController.pause();
+                        } else {
+                          videoPlayerController.play();
+                        }
+                      });
+                    },
+                    icon: Icon(
+                      videoPlayerController.value.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                      color: Colors.white,
+                    ),
                   ),
                   IconButton(
                     onPressed: () {},
