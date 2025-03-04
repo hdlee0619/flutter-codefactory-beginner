@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.black,
       body:
           video != null
-              ? _VideoPlayer(video: video!)
+              ? _VideoPlayer(video: video!, onAnotherVideoTap: handleLogoTap)
               : _VideoSelector(onTap: handleLogoTap),
     );
   }
@@ -72,8 +72,13 @@ class _Title extends StatelessWidget {
 
 class _VideoPlayer extends StatefulWidget {
   final XFile video;
+  final VoidCallback onAnotherVideoTap;
 
-  const _VideoPlayer({required this.video, super.key});
+  const _VideoPlayer({
+    required this.video,
+    required this.onAnotherVideoTap,
+    super.key,
+  });
 
   @override
   State<_VideoPlayer> createState() => _VideoPlayerState();
@@ -81,7 +86,7 @@ class _VideoPlayer extends StatefulWidget {
 
 class _VideoPlayerState extends State<_VideoPlayer> {
   // late는 지금 당장 여기서 초기화하진 않을 건데, VideoPlayer를 사용할 때에는 초기화 할 것이다. 라는 의미
-  late final VideoPlayerController videoPlayerController;
+  late VideoPlayerController videoPlayerController;
   bool isPlaying = false;
 
   @override
@@ -89,6 +94,16 @@ class _VideoPlayerState extends State<_VideoPlayer> {
     super.initState();
 
     initializeController();
+  }
+
+  @override
+  void didUpdateWidget(covariant _VideoPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.video.path != widget.video.path) {
+      videoPlayerController.dispose();
+      initializeController();
+    }
   }
 
   initializeController() async {
@@ -119,7 +134,7 @@ class _VideoPlayerState extends State<_VideoPlayer> {
               position: videoPlayerController.value.position,
               maxPosition: videoPlayerController.value.duration,
             ),
-            _AnotherVideo(onTap: () {}),
+            _AnotherVideo(onTap: widget.onAnotherVideoTap),
           ],
         ),
       ),
