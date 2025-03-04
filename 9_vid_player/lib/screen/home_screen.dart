@@ -87,6 +87,7 @@ class _VideoPlayer extends StatefulWidget {
 class _VideoPlayerState extends State<_VideoPlayer> {
   // late는 지금 당장 여기서 초기화하진 않을 건데, VideoPlayer를 사용할 때에는 초기화 할 것이다. 라는 의미
   late VideoPlayerController videoPlayerController;
+  bool showVideoController = true;
   bool isPlaying = false;
 
   @override
@@ -118,25 +119,41 @@ class _VideoPlayerState extends State<_VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: AspectRatio(
-        aspectRatio: videoPlayerController.value.aspectRatio,
-        child: Stack(
-          children: [
-            VideoPlayer(videoPlayerController),
-            _PlayButtons(
-              onReversePressed: handleReverse,
-              onPlayPressed: handlePlay,
-              onForwardPressed: handleForward,
-              isPlaying: videoPlayerController.value.isPlaying,
-            ),
-            _VideoSlider(
-              position: videoPlayerController.value.position,
-              maxPosition: videoPlayerController.value.duration,
-              onSliderChanged: handleSliderChanged,
-            ),
-            _AnotherVideo(onTap: widget.onAnotherVideoTap),
-          ],
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          showVideoController = !showVideoController;
+        });
+      },
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: videoPlayerController.value.aspectRatio,
+          child: Stack(
+            children: [
+              VideoPlayer(videoPlayerController),
+              if (showVideoController)
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black.withValues(alpha: 0.5),
+                ),
+              if (showVideoController)
+                _PlayButtons(
+                  onReversePressed: handleReverse,
+                  onPlayPressed: handlePlay,
+                  onForwardPressed: handleForward,
+                  isPlaying: videoPlayerController.value.isPlaying,
+                ),
+              if (showVideoController)
+                _VideoSlider(
+                  position: videoPlayerController.value.position,
+                  maxPosition: videoPlayerController.value.duration,
+                  onSliderChanged: handleSliderChanged,
+                ),
+              if (showVideoController)
+                _AnotherVideo(onTap: widget.onAnotherVideoTap),
+            ],
+          ),
         ),
       ),
     );
