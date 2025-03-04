@@ -18,10 +18,45 @@ class HomeScreen extends StatelessWidget {
                 child: Container(
                   child: Column(
                     children: [
-                      Text('U&I'),
-                      Text("우리 처음 만난 날"),
-                      IconButton(onPressed: () {}, icon: Icon(Icons.favorite)),
-                      Text('D + 1'),
+                      Text(
+                        'U&I',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'parisienne',
+                          fontSize: 80.0,
+                        ),
+                      ),
+                      Text(
+                        '우리 처음 만난 날',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'sunflower',
+                          fontSize: 30.0,
+                        ),
+                      ),
+                      Text(
+                        '2022-11-11',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'sunflower',
+                          fontSize: 20.0,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.favorite),
+                        iconSize: 60.0,
+                        color: Colors.red,
+                      ),
+                      Text(
+                        'D + 1',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'sunflower',
+                          fontSize: 50.0,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ],
                   ),
                 ),
