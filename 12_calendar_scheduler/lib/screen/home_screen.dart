@@ -1,6 +1,5 @@
-import 'package:calendar_scheduler/const/color.dart';
+import 'package:calendar_scheduler/components/calender.dart';
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,60 +13,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultBoxDecoration = BoxDecoration(
-      borderRadius: BorderRadius.circular(6.0),
-      border: Border.all(color: Colors.grey[200]!, width: 1.0),
-    );
-    final defaultTextStyle = TextStyle(
-      color: Colors.grey[600],
-      fontWeight: FontWeight.w700,
-      fontSize: 14.0,
-    );
-
     return Scaffold(
       body: SafeArea(
-        child: TableCalendar(
-          locale: 'ko_KR',
-          focusedDay: DateTime(2025, 3, 5),
-          firstDay: DateTime(1800),
-          lastDay: DateTime(3000),
-          onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-            setState(() {
-              this.selectedDay = selectedDay;
-            });
-          },
-          selectedDayPredicate: (DateTime date) {
-            if (selectedDay == null) {
-              return false;
-            }
-
-            return date.isAtSameMomentAs(selectedDay!);
-          },
-          headerStyle: HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
-            titleTextStyle: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w700,
+        child: Column(
+          children: [
+            Calender(
+              focusedDay: DateTime(2025, 3, 5),
+              onDaySelected: handleDaySelected,
+              selectedDayPredicate: selectedDayPredicate,
             ),
-          ),
-          calendarStyle: CalendarStyle(
-            isTodayHighlighted: true,
-            defaultDecoration: defaultBoxDecoration,
-            weekendDecoration: defaultBoxDecoration,
-            selectedDecoration: defaultBoxDecoration.copyWith(
-              border: Border.all(color: primaryColor, width: 1.0),
-            ),
-            todayDecoration: defaultBoxDecoration.copyWith(color: primaryColor),
-            defaultTextStyle: defaultTextStyle,
-            weekendTextStyle: defaultTextStyle,
-            selectedTextStyle: defaultTextStyle.copyWith(color: primaryColor),
-            outsideDecoration: defaultBoxDecoration.copyWith(
-              border: Border.all(color: Colors.transparent),
-            ),
-          ),
+          ],
         ),
       ),
     );
+  }
+
+  void handleDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      this.selectedDay = selectedDay;
+    });
+  }
+
+  bool selectedDayPredicate(DateTime date) {
+    if (selectedDay == null) {
+      return false;
+    }
+
+    return date.isAtSameMomentAs(selectedDay!);
   }
 }
