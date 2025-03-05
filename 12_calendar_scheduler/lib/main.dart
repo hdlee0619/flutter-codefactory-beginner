@@ -8,5 +8,7 @@ void main() async {
 
   await initializeDateFormatting();
 
-  runApp(MaterialApp(home: HomeScreen()));
+  runApp(
+    MaterialApp(theme: ThemeData(fontFamily: 'NotoSansKR'), home: HomeScreen()),
+  );
 }
