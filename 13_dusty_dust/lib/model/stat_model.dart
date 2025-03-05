@@ -1,3 +1,7 @@
+import 'package:isar/isar.dart';
+
+part 'stat_model.g.dart';
+
 enum Region {
   seoul,
   busan,
@@ -83,23 +87,25 @@ enum ItemCode {
   }
 }
 
+@collection
 class StatModel {
+  Id id = Isar.autoIncrement;
+
   // 지역
-  final Region region;
+  @enumerated
+  @Index(
+    unique: true,
+    composite: [CompositeIndex('dateTime'), CompositeIndex('itemCode')],
+  )
+  late Region region;
 
   // 통계값
-  final double stat;
+  late double stat;
 
   // 날짜
-  final DateTime dateTime;
+  late DateTime dateTime;
 
   // 미세먼지 / 초미세먼지
-  final ItemCode itemCode;
-
-  StatModel({
-    required this.region,
-    required this.stat,
-    required this.dateTime,
-    required this.itemCode,
-  });
+  @enumerated
+  late ItemCode itemCode;
 }
