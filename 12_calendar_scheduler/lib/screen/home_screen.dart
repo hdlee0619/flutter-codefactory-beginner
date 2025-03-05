@@ -1,11 +1,13 @@
+import 'package:calendar_scheduler/components/schedule_card.dart';
+import 'package:calendar_scheduler/model/schedule_with_category.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '/components/calender.dart';
 import '/components/schedule_bottom_sheet.dart';
-import '/components/schedule_card.dart';
 import '/components/today_banner.dart';
 import '/const/color.dart';
-import '/model/schedule.dart';
+import '/database/drift.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,57 +23,17 @@ class _HomeScreenState extends State<HomeScreen> {
     DateTime.now().day,
   );
 
-  Map<DateTime, List<Schedule>> schedules = {
-    DateTime.utc(2025, 3, 31): [
-      Schedule(
-        id: 1,
-        startTime: 9,
-        endTime: 18,
-        content: '예비군',
-        color: categoryColors[0],
-        date: DateTime.utc(2025, 03, 31),
-        createdAt: DateTime.utc(2025, 3, 05),
-      ),
-      Schedule(
-        id: 2,
-        startTime: 19,
-        endTime: 20,
-        content: '예비군',
-        color: categoryColors[0],
-        date: DateTime.utc(2025, 03, 31),
-        createdAt: DateTime.utc(2025, 3, 05),
-      ),
-    ],
-  };
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final newSchedule = await showModalBottomSheet<Schedule>(
+        onPressed: () {
+          showModalBottomSheet(
             context: context,
-            backgroundColor: Colors.white,
             builder: (_) {
               return ScheduleBottomSheet(selectedDay: selectedDay);
             },
           );
-
-          if (newSchedule == null) {
-            return;
-          }
-
-          final dateExists = schedules.containsKey(newSchedule.date);
-
-          final List<Schedule> existingSchedules =
-              dateExists ? schedules[newSchedule.date]! : [];
-
-          existingSchedules.add(newSchedule);
-
-          setState(() {
-            schedules = {...schedules, newSchedule.date: existingSchedules};
-            ;
-          });
         },
         backgroundColor: primaryColor,
         child: Icon(Icons.add, color: Colors.white),
@@ -84,13 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onDaySelected: handleDaySelected,
               selectedDayPredicate: selectedDayPredicate,
             ),
-            TodayBanner(
-              selectedDay: selectedDay,
-              taskCount:
-                  schedules.containsKey(selectedDay)
-                      ? schedules[selectedDay]!.length
-                      : 0,
-            ),
+            TodayBanner(selectedDay: selectedDay, taskCount: 0),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(
@@ -98,26 +54,58 @@ class _HomeScreenState extends State<HomeScreen> {
                   right: 16.0,
                   top: 16.0,
                 ),
-                child: ListView.separated(
-                  separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(height: 8.0);
-                  },
-                  itemCount:
-                      schedules.containsKey(selectedDay)
-                          ? schedules[selectedDay]!.length
-                          : 0,
-                  itemBuilder: (BuildContext context, int index) {
-                    // List<Schedule>
-                    final selectedSchedules = schedules[selectedDay]!;
-                    final scheduleModel = selectedSchedules[index];
+                child: StreamBuilder<List<ScheduleWithCategory>>(
+                  stream: GetIt.I<AppDatabase>().streamSchedule(selectedDay),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text(snapshot.error.toString()));
+                    }
 
-                    return ScheduleCard(
-                      startTime: scheduleModel.startTime,
-                      endTime: scheduleModel.endTime,
-                      content: scheduleModel.content,
-                      color: Color(
-                        int.parse('FF${scheduleModel.color}', radix: 16),
-                      ),
+                    if (snapshot.data == null) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    final schedules = snapshot.data!;
+
+                    return ListView.separated(
+                      separatorBuilder: (BuildContext context, int index) {
+                        return SizedBox(height: 8.0);
+                      },
+                      itemCount: schedules.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final scheduleWithCategory = schedules[index];
+                        final schedule = scheduleWithCategory.schedule;
+                        final category = scheduleWithCategory.category;
+
+                        return Dismissible(
+                          key: ObjectKey(schedule.id),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (DismissDirection direction) {
+                            GetIt.I<AppDatabase>().deleteSchedule(schedule.id);
+                          },
+                          child: GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (_) {
+                                  return ScheduleBottomSheet(
+                                    id: schedule.id,
+                                    selectedDay: selectedDay,
+                                  );
+                                },
+                              );
+                            },
+                            child: ScheduleCard(
+                              startTime: schedule.startTime,
+                              endTime: schedule.endTime,
+                              content: schedule.content,
+                              color: Color(
+                                int.parse('FF${category.color}', radix: 16),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -136,10 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool selectedDayPredicate(DateTime date) {
-    if (selectedDay == null) {
-      return false;
-    }
-
-    return date.isAtSameMomentAs(selectedDay!);
+    return date.isAtSameMomentAs(selectedDay);
   }
 }

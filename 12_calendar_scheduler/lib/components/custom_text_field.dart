@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '/const/color.dart';
 
 class CustomTextField extends StatelessWidget {
+  final String? initValue;
   final bool expanded;
   final String label;
 
@@ -10,6 +11,7 @@ class CustomTextField extends StatelessWidget {
   final FormFieldSetter<String> onSaved;
 
   const CustomTextField({
+    this.initValue,
     this.expanded = false,
     required this.label,
     required this.validator,
@@ -48,6 +50,7 @@ class CustomTextField extends StatelessWidget {
       maxLines: expanded ? null : 1,
       minLines: expanded ? null : 1,
       expands: expanded,
+      initialValue: initValue,
     );
   }
 }
