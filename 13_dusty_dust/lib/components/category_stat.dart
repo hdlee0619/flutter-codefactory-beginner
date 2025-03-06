@@ -1,4 +1,3 @@
-import 'package:dusty_dust/const/color.dart';
 import 'package:dusty_dust/model/stat_model.dart';
 import 'package:dusty_dust/utils/status_utils.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +6,15 @@ import 'package:isar/isar.dart';
 
 class CategoryStat extends StatelessWidget {
   final Region region;
+  final Color darkColor;
+  final Color lightColor;
 
-  const CategoryStat({required this.region, super.key});
+  const CategoryStat({
+    required this.region,
+    required this.darkColor,
+    required this.lightColor,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

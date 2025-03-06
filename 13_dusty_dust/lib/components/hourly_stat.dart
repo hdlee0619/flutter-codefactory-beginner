@@ -1,4 +1,3 @@
-import 'package:dusty_dust/const/color.dart';
 import 'package:dusty_dust/model/stat_model.dart';
 import 'package:dusty_dust/utils/date_utils.dart';
 import 'package:dusty_dust/utils/status_utils.dart';
@@ -8,8 +7,15 @@ import 'package:isar/isar.dart';
 
 class HourlyStat extends StatelessWidget {
   final Region region;
+  final Color darkColor;
+  final Color lightColor;
 
-  const HourlyStat({required this.region, super.key});
+  const HourlyStat({
+    required this.region,
+    required this.darkColor,
+    required this.lightColor,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
