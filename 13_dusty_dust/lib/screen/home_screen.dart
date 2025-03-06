@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return Column(
               children: [
                 MainStat(region: region),
-                CategoryStat(),
+                CategoryStat(region: region),
                 HourlyStat(),
               ],
             );
