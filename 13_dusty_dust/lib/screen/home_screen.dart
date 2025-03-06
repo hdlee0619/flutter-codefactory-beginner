@@ -17,18 +17,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Region region = Region.seoul;
+  bool isExpanded = true;
+
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
 
-    getCount();
-
     StatRepository.fetchData();
-  }
 
-  getCount() async {
-    print(await GetIt.I<Isar>().statModels.count());
+    scrollController.addListener(() {
+      bool isExpanded = scrollController.offset < (500.0 - kToolbarHeight);
+
+      if (isExpanded != this.isExpanded) {
+        setState(() {
+          this.isExpanded = isExpanded;
+        });
+      }
+    });
   }
 
   @override
@@ -63,44 +70,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(color: Colors.white, fontSize: 20.0),
                   ),
                 ),
-                ...Region.values
-                    .map(
-                      (region) => ListTile(
-                        selected: this.region == region,
-                        tileColor: Colors.white,
-                        selectedTileColor: statusModel.lightColor,
-                        selectedColor: Colors.white,
-                        onTap: () {
-                          setState(() {
-                            this.region = region;
-                          });
-                          Navigator.of(context).pop();
-                        },
-                        title: Text(region.krName),
-                      ),
-                    )
-                    .toList(),
+                ...Region.values.map(
+                  (region) => ListTile(
+                    selected: this.region == region,
+                    tileColor: Colors.white,
+                    selectedTileColor: statusModel.lightColor,
+                    selectedColor: Colors.white,
+                    onTap: () {
+                      setState(() {
+                        this.region = region;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    title: Text(region.krName),
+                  ),
+                ),
               ],
             ),
           ),
-          appBar: AppBar(
-            backgroundColor: statusModel.primaryColor,
-            surfaceTintColor: statusModel.primaryColor,
-          ),
           backgroundColor: statusModel.primaryColor,
-          body: SingleChildScrollView(
-            child: FutureBuilder<List<StatModel>>(
-              future: StatRepository.fetchDataByItemCode(
-                itemCode: ItemCode.PM10,
+          body: CustomScrollView(
+            controller: scrollController,
+            slivers: [
+              MainStat(
+                region: region,
+                primaryColor: statusModel.primaryColor,
+                isExpanded: isExpanded,
               ),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  print(snapshot.data);
-                }
-
-                return Column(
+              SliverToBoxAdapter(
+                child: Column(
                   children: [
-                    MainStat(region: region),
                     CategoryStat(
                       region: region,
                       darkColor: statusModel.darkColor,
@@ -112,9 +111,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       lightColor: statusModel.lightColor,
                     ),
                   ],
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         );
       },
