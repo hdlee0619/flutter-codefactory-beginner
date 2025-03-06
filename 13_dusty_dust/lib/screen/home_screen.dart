@@ -16,13 +16,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Region region = Region.seoul;
+
   @override
   void initState() {
     super.initState();
 
     getCount();
 
-    StatRepository.fetchData(itemCode: ItemCode.PM10);
+    StatRepository.fetchData();
   }
 
   getCount() async {
@@ -35,13 +37,19 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: primaryColor,
       body: SingleChildScrollView(
         child: FutureBuilder<List<StatModel>>(
-          future: StatRepository.fetchData(itemCode: ItemCode.PM10),
+          future: StatRepository.fetchDataByItemCode(itemCode: ItemCode.PM10),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               print(snapshot.data);
             }
 
-            return Column(children: [MainStat(), CategoryStat(), HourlyStat()]);
+            return Column(
+              children: [
+                MainStat(region: region),
+                CategoryStat(),
+                HourlyStat(),
+              ],
+            );
           },
         ),
       ),
