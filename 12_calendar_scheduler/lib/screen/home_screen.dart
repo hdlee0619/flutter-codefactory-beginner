@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     final schedules = snapshot.data!;
 
-                    print('hello');
+                    print('hello world');
 
                     return ListView.separated(
                       separatorBuilder: (BuildContext context, int index) {
